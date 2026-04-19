@@ -1,6 +1,6 @@
 # Bilingual Side-by-Side — Copilot Custom Skill
 
-一個 GitHub Copilot 自訂技能（Custom Skill），將長篇英文文章翻譯為**中英對照**的互動式 HTML 網頁，附帶語言學習提示，專為非英語母語的學習者設計。
+一個 GitHub Copilot 自訂技能（Custom Skill），將長篇英文文章翻譯為**中英對照**的互動式 HTML 網頁，附帶語言學習提示，專為非英語母語的學習者設計。([註]本文件由 AI 生成)
 
 ## 特色
 
