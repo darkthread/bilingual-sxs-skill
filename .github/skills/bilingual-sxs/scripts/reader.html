@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.8;
+            color: #212529;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .paragraph {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+
+            p span {
+                margin-right: 0.5rem;
+                cursor: pointer;
+            }
+
+            p.orig {
+                color: #343a40;
+                font-size: 1rem;
+                margin: 0 0 0.5rem;
+            }
+
+            p.trans {
+                color: #1a5276;
+                font-size: 1rem;
+                margin: 0 0 0.5rem;
+            }
+
+
+            div.hint {
+                font-size: 0.875rem;
+                color: #495057;
+                background: #f8f9fa;
+                border-left: 4px solid #adb5bd;
+                padding: 0.5rem 1rem;
+                margin: 0;
+
+                ul {
+                    margin: 0.25rem 0 0;
+                    padding-left: 1.25rem;
+                }
+
+                li {
+                    margin-bottom: 0.25rem;
+                    cursor: default;
+                }
+
+                code {
+                    background: #e9ecef;
+                    padding: 0.1rem 0.3rem;
+                    border-radius: 3px;
+                    font-size: 0.85em;
+                }
+
+                strong {
+                    color: #343a40;
+                    display: block;
+                }
+            }
+        }
+
+        .mapping {
+            p span {
+
+                &.focus {
+                    background: #ffeeba;
+                }
+            }
+        }
+
+        p.orig mark {
+            background: lightpink;
+            color: inherit;
+        }
+
+        .toolbar {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            opacity: 0.35;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            button {
+                padding: 0.45rem 0.9rem;
+                border: 1px solid #adb5bd;
+                border-radius: 10px;
+                min-width: 5rem;
+                background: #fff;
+                color: #495057;
+                font-size: 0.85rem;
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+                transition: background 0.2s, color 0.2s;
+
+            }
+
+            button.active {
+                background: #1a5276;
+                color: #fff;
+                border-color: #1a5276;
+            }
+        }
+
+        div.hint {
+            display: none;
+        }
+
+        div.show-hint div.hint {
+            display: block;
+        }
+
+        p.orig {
+            display: none;
+        }
+
+        div.show-orig p.orig {
+            display: block;
+        }
+
+        p.trans {
+            display: none;
+        }
+
+        div.show-trans p.trans {
+            display: block;
+        }
+
+        span.map-trans {
+            display: none;
+        }
+
+        .interleave {
+            span.map-trans {
+                display: inline;
+                color: #1a5276;
+            }
+
+            .trans {
+                display: none;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div
+            :class="{ 'show-hint': showOrig && showHint, 'show-orig': showOrig, 'show-trans': showTrans && !interleave, 'mapping': showOrig && mapping, 'interleave': showOrig && interleave }">
+            <div class="toolbar">
+                <button :class="{ active: showOrig }" @click="toggle('showOrig')">原文</button>
+                <button :class="{ active: showTrans }" @click="toggle('showTrans')">翻譯</button>
+                <button :class="{ active: showHint }" v-show="showOrig" @click="toggle('showHint')">提示</button>
+                <button :class="{ active: mapping }" v-show="showOrig" @click="toggle('mapping')">對照</button>
+                <button :class="{ active: interleave }" v-show="showOrig" @click="toggle('interleave')">穿插</button>
+            </div>
+            <h1>{{ title }}</h1>
+            <div class="paragraph" v-for="(para, pidx) in paragraphs" :key="pidx">
+                <p class="orig">
+                    <span v-for="(sentence, sidx) in para.O" :key="sidx"
+                        :class="{ focus: focusIdx === `s-${pidx}-${sidx}` }"
+                        @mouseenter="focusIdx = `s-${pidx}-${sidx}`" @mouseleave="focusIdx = ''" :title="para.T[sidx]">
+                        <span v-html="highlightWord(sentence)"></span>
+                        <span class="map-trans">{{ para.T[sidx] }}</span>
+                    </span>
+
+
+                </p>
+                <p class="trans">
+                    <span v-for="(sentence, sidx) in para.T" :key="sidx"
+                        :class="{ focus: focusIdx === `s-${pidx}-${sidx}` }"
+                        @mouseenter="focusIdx = `s-${pidx}-${sidx}`" @mouseleave="focusIdx = ''"
+                        v-html="sentence"></span>
+                </p>
+                <div class="hint">
+                    <ul>
+                        <li v-for="(hint, hIndex) in para.H" :key="hIndex" @mouseenter="hoveredWord = hint.E"
+                            @mouseleave="hoveredWord = ''">
+                            <strong>{{ hint.W }}</strong> {{ hint.D }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    title: '',
+                    paragraphs: [],
+                    hoveredWord: '',
+                    focusIdx: '',
+                    interleave: false,
+                    showOrig: true,
+                    showTrans: true,
+                    showHint: true,
+                    mapping: true
+                };
+            },
+            methods: {
+                highlightWord(text) {
+                    if (!this.hoveredWord) return text;
+                    const escaped = this.hoveredWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+                },
+                async toggle(key) {
+                    // 找出目前viewport最上方的 .paragraph
+                    const anchor = [...document.querySelectorAll('.paragraph')]
+                        .find(el => el.getBoundingClientRect().top >= 0);
+                    const anchorTop = anchor ? anchor.getBoundingClientRect().top : null;
+
+                    this[key] = !this[key];
+
+                    await this.$nextTick();
+
+                    if (anchor && anchorTop !== null) {
+                        const newTop = anchor.getBoundingClientRect().top;
+                        window.scrollBy(0, newTop - anchorTop);
+                    }
+                }
+            }
+        });
+        const vm = app.mount('#app');
+    </script>
+    <script>
+        vm.title = $TITLE$;
+        document.title = vm.title;
+        vm.paragraphs = $PARAGRAPHS$;
+    </script>
+</body>
+
+</html>
