@@ -123,6 +123,13 @@
                 color: #fff;
                 border-color: var(--c-trans);
             }
+
+            button:disabled {
+                background: var(--c-border-soft);
+                color: var(--c-border-hint);
+                border-color: var(--c-border-soft);
+                cursor: not-allowed;
+            }
         }
 
         /* ── Highlight ───────────────────────────────── */
@@ -145,13 +152,13 @@
 <body>
     <div id="app">
         <div
-            :class="{ 'show-hint': showOrig && showHint, 'show-orig': showOrig, 'show-trans': showTrans && !interleave, 'mapping': showOrig && mapping, 'interleave': showOrig && interleave }">
+            :class="{ 'show-hint': showOrig && showHint, 'show-orig': showOrig, 'show-trans': showTrans && !interleave, 'mapping': bilingual && mapping, 'interleave': bilingual && interleave }">
             <div class="toolbar">
-                <button :class="{ active: showOrig }" @click="toggle('showOrig')">原文</button>
-                <button :class="{ active: showTrans }" @click="toggle('showTrans')">翻譯</button>
+                <button :class="{ active: showOrig }" :disabled="!bilingual && showOrig" @click="toggle('showOrig')">原文</button>
+                <button :class="{ active: showTrans }" :disabled="!bilingual && showTrans" @click="toggle('showTrans')">翻譯</button>
                 <button :class="{ active: showHint }" v-show="showOrig" @click="toggle('showHint')">提示</button>
-                <button :class="{ active: mapping }" v-show="showOrig" @click="toggle('mapping')">對照</button>
-                <button :class="{ active: interleave }" v-show="showOrig" @click="toggle('interleave')">穿插</button>
+                <button class="active" v-show="bilingual && interleave" @click="mode = 'mapping'">對照</button>
+                <button class="active" v-show="bilingual && mapping" @click="mode = 'interleave'">穿插</button>
             </div>
             <h1>{{ title }}</h1>
             <div class="paragraph" v-for="(para, pidx) in paragraphs" :key="pidx">
@@ -190,12 +197,22 @@
                     paragraphs: [],
                     hoveredWord: '',
                     focusIdx: '',
-                    interleave: false,
                     showOrig: true,
                     showTrans: true,
                     showHint: true,
-                    mapping: true
+                    mode: 'mapping'
                 };
+            },
+            computed: {
+                bilingual() {
+                    return this.showOrig && this.showTrans;
+                },
+                mapping() {
+                    return this.bilingual && this.mode === 'mapping';
+                },
+                interleave() {
+                    return this.bilingual && this.mode === 'interleave';
+                }
             },
             methods: {
                 highlightWord(text) {
