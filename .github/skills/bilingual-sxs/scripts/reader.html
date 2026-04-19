@@ -6,26 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <style>
+        /* ── Tokens ──────────────────────────────────── */
+        :root {
+            --c-text:        #212529;
+            --c-orig:        #343a40;
+            --c-trans:       #1a5276;
+            --c-muted:       #495057;
+            --c-border:      #dee2e6;
+            --c-border-soft: #e9ecef;
+            --c-border-hint: #adb5bd;
+            --c-bg-hint:     #f8f9fa;
+            --c-bg-code:     #e9ecef;
+            --c-focus:       #ffeeba;
+        }
+
+        /* ── Base ────────────────────────────────────── */
         body {
             font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
             max-width: 900px;
             margin: 0 auto;
             padding: 2rem;
             line-height: 1.8;
-            color: #212529;
+            color: var(--c-text);
         }
 
         h1 {
             font-size: 1.5rem;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 2px solid var(--c-border);
             padding-bottom: 0.5rem;
             margin-bottom: 2rem;
         }
 
+        /* ── Paragraph ───────────────────────────────── */
         .paragraph {
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--c-border-soft);
 
             p span {
                 margin-right: 0.5rem;
@@ -33,23 +49,22 @@
             }
 
             p.orig {
-                color: #343a40;
+                color: var(--c-orig);
                 font-size: 1rem;
                 margin: 0 0 0.5rem;
             }
 
             p.trans {
-                color: #1a5276;
+                color: var(--c-trans);
                 font-size: 1rem;
                 margin: 0 0 0.5rem;
             }
 
-
-            div.hint {
+            .hint {
                 font-size: 0.875rem;
-                color: #495057;
-                background: #f8f9fa;
-                border-left: 4px solid #adb5bd;
+                color: var(--c-muted);
+                background: var(--c-bg-hint);
+                border-left: 4px solid var(--c-border-hint);
                 padding: 0.5rem 1rem;
                 margin: 0;
 
@@ -64,33 +79,20 @@
                 }
 
                 code {
-                    background: #e9ecef;
+                    background: var(--c-bg-code);
                     padding: 0.1rem 0.3rem;
                     border-radius: 3px;
                     font-size: 0.85em;
                 }
 
                 strong {
-                    color: #343a40;
+                    color: var(--c-orig);
                     display: block;
                 }
             }
         }
 
-        .mapping {
-            p span {
-
-                &.focus {
-                    background: #ffeeba;
-                }
-            }
-        }
-
-        p.orig mark {
-            background: lightpink;
-            color: inherit;
-        }
-
+        /* ── Toolbar ─────────────────────────────────── */
         .toolbar {
             position: fixed;
             top: 1rem;
@@ -101,69 +103,41 @@
             gap: 0.4rem;
             opacity: 0.35;
 
-            &:hover {
-                opacity: 1;
-            }
+            &:hover { opacity: 1; }
 
             button {
                 padding: 0.45rem 0.9rem;
-                border: 1px solid #adb5bd;
-                border-radius: 10px;
                 min-width: 5rem;
+                border: 1px solid var(--c-border-hint);
+                border-radius: 10px;
                 background: #fff;
-                color: #495057;
+                color: var(--c-muted);
                 font-size: 0.85rem;
                 cursor: pointer;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
                 transition: background 0.2s, color 0.2s;
-
             }
 
             button.active {
-                background: #1a5276;
+                background: var(--c-trans);
                 color: #fff;
-                border-color: #1a5276;
+                border-color: var(--c-trans);
             }
         }
 
-        div.hint {
-            display: none;
-        }
+        /* ── Highlight ───────────────────────────────── */
+        p.orig mark           { background: lightpink; color: inherit; }
+        .mapping p span.focus { background: var(--c-focus); }
 
-        div.show-hint div.hint {
-            display: block;
-        }
+        /* ── Visibility Toggles ──────────────────────── */
+        .hint, p.orig, p.trans, span.map-trans { display: none; }
 
-        p.orig {
-            display: none;
-        }
+        .show-hint .hint    { display: block; }
+        .show-orig p.orig   { display: block; }
+        .show-trans p.trans { display: block; }
 
-        div.show-orig p.orig {
-            display: block;
-        }
-
-        p.trans {
-            display: none;
-        }
-
-        div.show-trans p.trans {
-            display: block;
-        }
-
-        span.map-trans {
-            display: none;
-        }
-
-        .interleave {
-            span.map-trans {
-                display: inline;
-                color: #1a5276;
-            }
-
-            .trans {
-                display: none;
-            }
-        }
+        .interleave span.map-trans { display: inline; color: var(--c-trans); }
+        .interleave .trans         { display: none; }
     </style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
